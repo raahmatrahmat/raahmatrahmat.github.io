@@ -1,13 +1,78 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Arahmat Shiny App Redirect</title>
-    <meta http-equiv="refresh" content="0; url=https://arahmat.shinyapps.io/index/" />
-    <script>
-        window.location.replace("https://arahmat.shinyapps.io/index/");
-    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIbashira Command Center - YouTube Integration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #020617;
+            --accent: #22d3ee;
+        }
+        body {
+             font-family: 'Plus Jakarta Sans', sans-serif;
+             background-color: var(--bg-dark);
+             color: #f8fafc;
+        }
+        .glass {
+             background: rgba(15, 23, 42, 0.9);
+             backdrop-filter: blur(12px);
+             border: 1px solid rgba(255, 255, 255, 0.08);
+         }
+    </style>
 </head>
-<body>
-    <p>Redirecting to the Shiny App... <a href="https://arahmat.shinyapps.io/index/">Click here if you are not redirected.</a></p>
-</body>
-</html>
+<body class="min-h-screen p-4 flex flex-col items-center justify-center">
+
+     <div class="w-full max-w-3xl space-y-8 text-center">
+         <!-- Dashboard Link Header -->
+         <div class="glass p-8 rounded-[2.5rem] border-t-4 border-cyan-500 shadow-2xl shadow-cyan-500/10">
+             <h1 class="text-3xl font-bold mb-4">YouTube Dashboard <span class="text-cyan-400">A.RAHMAT</span></h1>
+             <p class="text-slate-400 mb-8 italic">Bismillaahirrahmaanirrahiim. Monitoring otonom untuk performa channel YouTube Anda.</p>
+
+             <!-- Tombol Link Utama -->
+             <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                 <a href="https://arahmat.shinyapps.io/index/" target="_blank" class="px-8 py-4 bg-cyan-600 hover:bg-cyan-500 text-white rounded-2xl font-bold tracking-widest transition-all transform hover:scale-105 shadow-lg shadow-cyan-900/30 flex items-center justify-center gap-2">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                         <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z" />
+                         <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z" />
+                     </svg>
+                     BUKA DASHBOARD (SHINYAPPS)
+                 </a>
+
+                 <a href="https://www.youtube.com/@A-RAHMAT-x4s" target="_blank" class="px-8 py-4 bg-rose-600 hover:bg-rose-500 text-white rounded-2xl font-bold tracking-widest transition-all transform hover:scale-105 shadow-lg shadow-rose-900/30 flex items-center justify-center gap-2">
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">
+                         <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+                     </svg>
+                     YOUTUBE CHANNEL
+                 </a>
+             </div>
+         </div>
+
+         <!-- Detail URL -->
+         <div class="glass p-6 rounded-2xl text-left border-l-4 border-emerald-500">
+             <h3 class="text-xs font-black text-emerald-400 uppercase tracking-widest mb-3">Endpoint Informasi</h3>
+             <div class="space-y-2 mono text-[11px]">
+                 <p class="flex justify-between">
+                     <span class="text-slate-500">Dashboard URL:</span>
+                     <span class="text-white">https://arahmat.shinyapps.io/index/</span>
+                 </p>
+                 <p class="flex justify-between">
+                     <span class="text-slate-500">Platform:</span>
+                     <span class="text-white">ShinyApps.io by Posit</span>
+                 </p>
+                 <p class="flex justify-between">
+                     <span class="text-slate-500">Status Deployment:</span>
+                     <span class="text-emerald-400">ACTIVE</span>
+                 </p>
+             </div>
+         </div>
+
+         <footer class="text-[10px] text-slate-600 font-bold uppercase tracking-[0.5em]">
+             Steady State Reached • @A.RAHMAT-x4s • 2026
+         </footer>
+     </div>
+
+ </body>
+ </html>
