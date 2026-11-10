@@ -1,6 +1,8 @@
 # Bubble Crush Studio staging
 
-This branch adds a read-only web dashboard and a verified AdMob SSV points ledger. An AdMob view never creates cash or wallet credit. The application must keep rewards non-transferable and usable only inside the game.
+This branch adds a read-only web dashboard and a verified AdMob SSV ledger with separate balances for non-transferable game items. Rewards may be points, coins, gems, diamonds, pearls, game gold, lives, energy, boosters, skins, or cosmetics; they must only be used inside Bubble Crush.
+
+AdMob rewards must never be IDR, USD, GBP, cash, crypto/Bitcoin, gift cards, airtime/pulsa, mobile-data packages, or any other real-world payment or redeemable item. In-game balances must not be transferable, tradable, or convertible to money or real-world goods. Publisher AdMob earnings are tracked separately from player rewards and paid to the publisher under their AdMob payment profile.
 
 ## Current staging project
 
@@ -16,12 +18,12 @@ The frontend contains only the Supabase URL and a publishable key. RLS is enable
 ## Required account setup
 
 1. In Supabase Auth, create or invite the account that will read its own points. Keep public sign-up disabled for the owner dashboard.
-2. In Supabase Edge Function Secrets, set ADMOB_ALLOWED_AD_UNITS to the exact rewarded ad unit IDs, ADMOB_REWARD_ITEM to the internal non-cash item name, and ADMOB_REWARD_AMOUNT to the exact integer configured on those units. Do not use IDR, USD, cash, gift cards, or a withdrawable balance.
+2. In Supabase Edge Function Secrets, set ADMOB_REWARD_CONFIG_JSON to a JSON object mapping each exact rewarded ad unit ID to its exact configured in-game item and integer amount. Example: `{"ca-app-pub-.../YOUR_UNIT_ID":{"item":"gems","amount":5}}`. Only the allowlisted, non-transferable in-game item names above are accepted. Do not configure fiat, cash, crypto, gift cards, transferable goods, airtime, or data packages.
 3. Set GEMINI_API_KEY and GEMINI_MODEL in Edge Function Secrets to use the read-only assistant.
 4. Configure the AdMob SSV URL on the rewarded ad unit only after the game SDK sends the signed callback user_id as a valid Supabase Auth UUID. Events without a mapped account are acknowledged without points.
 5. Test with the AdMob SSV test tool and test ads. Do not use live ads on your own devices for revenue testing.
 
-The SSV handler acknowledges verified callbacks that fail configured reward/user checks without crediting them. Repeated transaction IDs are deduplicated in Postgres. Google public verification keys are refreshed at least once every 24 hours.
+The SSV handler acknowledges verified callbacks that fail configured reward/user checks without crediting them. Repeated transaction IDs are deduplicated in Postgres. The ledger reports a separate balance for each item so points, gems, and lives are never added into one misleading total. Google public verification keys are refreshed at least once every 24 hours.
 
 ## Local checks
 
