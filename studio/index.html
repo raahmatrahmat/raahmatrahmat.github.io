@@ -36,7 +36,7 @@
           <span class="policy-icon" aria-hidden="true">✓</span>
           <div>
             <strong>Payout dari iklan dinonaktifkan</strong>
-            <p>Poin game tidak dapat ditukar menjadi uang, dipindahtangankan, atau dikirim ke e-wallet.</p>
+            <p>Poin dan item virtual hanya berlaku pada akun game penerima. Tidak bisa ditukar ke uang, kripto, pulsa, paket data, atau dipindahtangankan.</p>
           </div>
         </aside>
       </section>
@@ -76,9 +76,9 @@
 
         <div class="summary-grid">
           <article class="summary-card">
-            <span class="summary-label">Poin game tersedia</span>
-            <strong id="points-balance">—</strong>
-            <small>Poin non-tunai dari ledger terverifikasi</small>
+            <span class="summary-label">Saldo item game</span>
+            <div id="reward-balances" class="reward-balance-list"><span class="muted">—</span></div>
+            <small>Setiap jenis item dihitung terpisah dan hanya berlaku di dalam game</small>
           </article>
           <article class="summary-card">
             <span class="summary-label">Aktivitas tercatat</span>
@@ -97,14 +97,14 @@
             <div class="panel-heading">
               <div>
                 <p class="eyebrow">Bukti aktivitas</p>
-                <h2>Riwayat poin</h2>
+                <h2>Riwayat reward</h2>
               </div>
               <button id="refresh-button" class="button button-quiet" type="button">Muat ulang</button>
             </div>
             <div class="table-wrap">
               <table>
                 <thead>
-                  <tr><th>Waktu</th><th>Unit iklan</th><th>Item</th><th>Poin</th><th>ID transaksi</th></tr>
+                  <tr><th>Waktu</th><th>Unit iklan</th><th>Item game</th><th>Jumlah</th><th>ID transaksi</th></tr>
                 </thead>
                 <tbody id="ledger-rows">
                   <tr><td colspan="5" class="empty-cell">Belum ada aktivitas.</td></tr>
@@ -189,14 +189,14 @@
           </div>
           <span class="connection-status pending">BELUM DIKONFIGURASI</span>
         </div>
-        <p class="muted">Pasang URL berikut di pengaturan SSV hanya setelah secret reward dicocokkan dengan reward poin non-tunai pada unit iklan.</p>
+        <p class="muted">Pasang URL berikut di pengaturan SSV setelah setiap unit iklan dicocokkan dengan item dan jumlah game non-tunai yang sama di konfigurasi server.</p>
         <code id="ssv-url"></code>
         <p class="notice">Reward hanya dikreditkan jika signature, unit, jumlah, item, waktu, dan user_id valid. Unit tanpa identitas pengguna tidak akan mendapat kredit.</p>
       </section>
 
       <footer class="footer">
         <span>Bubble Crush Studio · Staging</span>
-        <span>Reward iklan = poin game non-tunai</span>
+        <span>Reward iklan = item game non-tunai</span>
       </footer>
     </main>
   </body>
