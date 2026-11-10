@@ -1,5 +1,5 @@
 const config = window.STUDIO_CONFIG || {};
-const state = { accessToken: '', user: null, balance: 0 };
+const state = { accessToken: '', user: null, balance: {} };
 
 const loginPanel = document.querySelector('#login-panel');
 const dashboardPanel = document.querySelector('#dashboard-panel');
@@ -8,7 +8,22 @@ const loginMessage = document.querySelector('#login-message');
 const ledgerMessage = document.querySelector('#ledger-message');
 const assistantOutput = document.querySelector('#assistant-message-output');
 const rows = document.querySelector('#ledger-rows');
+const rewardBalances = document.querySelector('#reward-balances');
 const safeText = (value) => String(value ?? '');
+const rewardLabels = {
+  points: 'Poin',
+  game_points: 'Poin game',
+  coins: 'Koin',
+  gems: 'Permata',
+  diamonds: 'Berlian',
+  pearls: 'Mutiara',
+  game_gold: 'Emas game',
+  lives: 'Nyawa',
+  energy: 'Energi',
+  boosters: 'Booster',
+  skins: 'Skin',
+  cosmetics: 'Kosmetik',
+};
 
 function showMessage(element, message, kind = '') {
   element.textContent = message;
@@ -25,7 +40,7 @@ function setAuthenticated(user) {
 function setUnauthenticated() {
   state.accessToken = '';
   state.user = null;
-  state.balance = 0;
+  state.balance = {};
   dashboardPanel.classList.add('hidden');
   loginPanel.classList.remove('hidden');
 }
@@ -96,7 +111,7 @@ async function loadLedger() {
       headers: { 'content-type': 'application/json' },
       body: '{}',
     }),
-    authFetch('/rest/v1/reward_ledger?select=transaction_id,points,reward_item,ad_unit,created_at&order=created_at.desc&limit=50'),
+    authFetch('/rest/v1/reward_ledger?select=transaction_id,amount,reward_item,ad_unit,created_at&order=created_at.desc&limit=50'),
   ]);
   if (!balanceResponse.ok || !ledgerResponse.ok) {
     showMessage(ledgerMessage, 'Ledger belum tersedia. Periksa koneksi Supabase dan kebijakan akses.', 'error');
@@ -104,11 +119,37 @@ async function loadLedger() {
   }
   const balance = await balanceResponse.json();
   const ledger = await ledgerResponse.json();
-  state.balance = Number(balance) || 0;
-  document.querySelector('#points-balance').textContent = new Intl.NumberFormat('id-ID').format(state.balance);
+  state.balance = balance && typeof balance === 'object' && !Array.isArray(balance) ? balance : {};
+  renderBalances(state.balance);
   document.querySelector('#event-count').textContent = new Intl.NumberFormat('id-ID').format(ledger.length);
   renderRows(ledger);
   showMessage(ledgerMessage, ledger.length ? 'Menampilkan 50 aktivitas terakhir.' : 'Belum ada callback SSV yang dikreditkan.', 'success');
+}
+
+function renderBalances(balance) {
+  const entries = Object.entries(balance)
+    .filter(([item, amount]) => item && Number.isSafeInteger(Number(amount)) && Number(amount) > 0)
+    .sort(([left], [right]) => left.localeCompare(right));
+  if (!entries.length) {
+    const empty = document.createElement('span');
+    empty.className = 'muted';
+    empty.textContent = 'Belum ada saldo item game.';
+    rewardBalances.replaceChildren(empty);
+    return;
+  }
+
+  const fragment = document.createDocumentFragment();
+  for (const [item, amount] of entries) {
+    const badge = document.createElement('div');
+    badge.className = 'reward-balance';
+    const label = document.createElement('span');
+    label.textContent = rewardLabels[item] || item.replaceAll('_', ' ');
+    const value = document.createElement('strong');
+    value.textContent = new Intl.NumberFormat('id-ID').format(Number(amount));
+    badge.append(label, value);
+    fragment.append(badge);
+  }
+  rewardBalances.replaceChildren(fragment);
 }
 
 function renderRows(ledger) {
@@ -129,7 +170,7 @@ function renderRows(ledger) {
       formatDate(entry.created_at),
       safeText(entry.ad_unit),
       safeText(entry.reward_item),
-      '+' + new Intl.NumberFormat('id-ID').format(Number(entry.points) || 0),
+      '+' + new Intl.NumberFormat('id-ID').format(Number(entry.amount) || 0),
     ];
     for (const value of values) {
       const cell = document.createElement('td');
