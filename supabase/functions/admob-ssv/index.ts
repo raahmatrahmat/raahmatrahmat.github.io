@@ -1,6 +1,7 @@
 import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import {
   fetchAdMobPublicKeys,
+  isAllowedGameRewardItem,
   parseSignedQuery,
   validateRewardEvent,
   verifyCallbackSignature,
@@ -38,11 +39,32 @@ function getServiceKey(): string | null {
   return Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || null;
 }
 
-function allowedUnits(): string[] {
-  return (Deno.env.get('ADMOB_ALLOWED_AD_UNITS') || '')
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
+function rewardConfig(): Record<string, { item: string; amount: number }> | null {
+  const raw = Deno.env.get('ADMOB_REWARD_CONFIG_JSON') || '';
+  if (!raw) return null;
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    console.error('ADMOB_REWARD_CONFIG_JSON is not valid JSON');
+    return null;
+  }
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null;
+
+  const result: Record<string, { item: string; amount: number }> = {};
+  for (const [adUnit, value] of Object.entries(parsed as Record<string, unknown>)) {
+    if (!adUnit || !value || typeof value !== 'object' || Array.isArray(value)) return null;
+    const itemConfig = value as { item?: unknown; amount?: unknown };
+    if (
+      typeof itemConfig.item !== 'string' ||
+      !isAllowedGameRewardItem(itemConfig.item) ||
+      !Number.isSafeInteger(itemConfig.amount) ||
+      Number(itemConfig.amount) < 1
+    ) return null;
+    result[adUnit] = { item: itemConfig.item.toLowerCase(), amount: Number(itemConfig.amount) };
+  }
+  return Object.keys(result).length ? result : null;
 }
 
 Deno.serve(async (request: Request) => {
@@ -78,17 +100,13 @@ Deno.serve(async (request: Request) => {
   }
   if (!signatureIsValid) return jsonResponse({ error: 'invalid_signature' }, 400);
 
-  const rewardItem = Deno.env.get('ADMOB_REWARD_ITEM') || '';
-  const rewardAmount = Number(Deno.env.get('ADMOB_REWARD_AMOUNT'));
-  const units = allowedUnits();
-  if (!units.length || !rewardItem || !Number.isSafeInteger(rewardAmount) || rewardAmount < 1) {
+  const rewardsByAdUnit = rewardConfig();
+  if (!rewardsByAdUnit) {
     return jsonResponse({ error: 'ssv_not_configured', credited: false }, 503);
   }
 
   const config = {
-    allowedAdUnits: units,
-    rewardItem,
-    rewardAmount,
+    rewardsByAdUnit,
     maxEventAgeMs: Number(Deno.env.get('ADMOB_MAX_EVENT_AGE_MS')) || 7 * 24 * 60 * 60 * 1000,
     expectedCustomData: Deno.env.get('ADMOB_EXPECTED_CUSTOM_DATA') || '',
   };
