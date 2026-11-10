@@ -1,7 +1,24 @@
 export const ADMOB_PUBLIC_KEYS_URL = 'https://www.gstatic.com/admob/reward/verifier-keys.json';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const TRANSACTION_RE = /^[0-9a-f]{16,128}$/i;
-const NON_CASH_REWARD_RE = /^(coins?|points?|game[_ -]?points|lives?|energy|tokens?)$/i;
+export const IN_GAME_REWARD_ITEMS = Object.freeze([
+  'points',
+  'game_points',
+  'coins',
+  'gems',
+  'diamonds',
+  'pearls',
+  'game_gold',
+  'lives',
+  'energy',
+  'boosters',
+  'skins',
+  'cosmetics',
+]);
+
+export function isAllowedGameRewardItem(value) {
+  return typeof value === 'string' && IN_GAME_REWARD_ITEMS.includes(value.toLowerCase());
+}
 
 export function base64ToBytes(value) {
   const normalized = String(value).replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
@@ -115,16 +132,17 @@ export function validateRewardEvent(params, config, nowMs = Date.now()) {
   const timestampText = params.get('timestamp') || '';
   const timestampMs = Number(timestampText);
   const rewardAmount = Number(rewardAmountText);
+  const unitReward = config.rewardsByAdUnit?.[adUnit];
 
   if (!TRANSACTION_RE.test(transactionId)) return { ok: false, reason: 'invalid_transaction_id' };
   if (!UUID_RE.test(userId)) return { ok: false, reason: 'missing_or_invalid_user_id' };
-  if (!Array.isArray(config.allowedAdUnits) || !config.allowedAdUnits.includes(adUnit)) {
+  if (!unitReward) {
     return { ok: false, reason: 'ad_unit_not_allowed' };
   }
-  if (!NON_CASH_REWARD_RE.test(rewardItem) || rewardItem.toLowerCase() !== String(config.rewardItem || '').toLowerCase()) {
+  if (!isAllowedGameRewardItem(unitReward.item) || rewardItem.toLowerCase() !== unitReward.item.toLowerCase()) {
     return { ok: false, reason: 'reward_item_mismatch_or_cash_like' };
   }
-  if (!Number.isSafeInteger(rewardAmount) || rewardAmount < 1 || rewardAmount !== Number(config.rewardAmount)) {
+  if (!Number.isSafeInteger(rewardAmount) || rewardAmount < 1 || rewardAmount !== unitReward.amount) {
     return { ok: false, reason: 'reward_amount_mismatch' };
   }
   if (!Number.isSafeInteger(timestampMs) || timestampMs < 1) {
@@ -144,7 +162,7 @@ export function validateRewardEvent(params, config, nowMs = Date.now()) {
       transactionId,
       userId,
       adUnit,
-      rewardItem,
+      rewardItem: unitReward.item.toLowerCase(),
       rewardAmount,
       timestampMs,
     },
