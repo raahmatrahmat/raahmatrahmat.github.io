@@ -77,6 +77,10 @@ input:focus, textarea:focus { border-color: rgba(122, 156, 255, .8); box-shadow:
 .summary-label { color: #bdc9dc; font-size: 12px; }
 .summary-card strong { font-size: 31px; letter-spacing: -.04em; }
 .summary-card small { color: var(--muted); font-size: 11px; }
+.reward-balance-list { display: flex; flex-wrap: wrap; gap: 7px; }
+.reward-balance { display: flex; align-items: baseline; gap: 6px; padding: 6px 9px; border: 1px solid rgba(80, 223, 176, .18); border-radius: 9px; background: rgba(80, 223, 176, .06); }
+.reward-balance span { color: #adbbd1; font-size: 10px; }
+.summary-card .reward-balance strong { color: var(--mint); font-size: 15px; letter-spacing: 0; }
 .content-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 2px; }
 .ledger-panel, .assistant-panel { min-width: 0; }
 .table-wrap { width: 100%; overflow-x: auto; }
