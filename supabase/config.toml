@@ -1,0 +1,6 @@
+[functions.admob-ssv]
+verify_jwt = false
+
+[functions.gemini-assistant]
+verify_jwt = true
+
