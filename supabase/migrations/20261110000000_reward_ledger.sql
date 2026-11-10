@@ -4,7 +4,10 @@ create table if not exists public.reward_ledger (
   user_id uuid not null references auth.users(id) on delete restrict,
   points integer not null check (points > 0),
   reward_item text not null
-    check (reward_item ~* '^(coins?|points?|game[_ -]?points|lives?|energy|tokens?)$'),
+    check (lower(reward_item) in (
+      'points', 'game_points', 'coins', 'gems', 'diamonds', 'pearls', 'game_gold',
+      'lives', 'energy', 'boosters', 'skins', 'cosmetics'
+    )),
   ad_unit text not null,
   event_timestamp_ms bigint not null check (event_timestamp_ms > 0),
   created_at timestamptz not null default now()
@@ -55,8 +58,11 @@ as $$
 declare
   inserted_count integer;
 begin
-  if p_reward_item !~* '^(coins?|points?|game[_ -]?points|lives?|energy|tokens?)$' then
-    raise exception 'Only non-cash in-game rewards are accepted';
+  if p_reward_item is null or lower(p_reward_item) not in (
+    'points', 'game_points', 'coins', 'gems', 'diamonds', 'pearls', 'game_gold',
+    'lives', 'energy', 'boosters', 'skins', 'cosmetics'
+  ) then
+    raise exception 'Only approved non-transferable in-game rewards are accepted';
   end if;
   if p_reward_amount is null or p_reward_amount < 1 then
     raise exception 'Reward amount must be positive';
