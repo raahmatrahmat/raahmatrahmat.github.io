@@ -1,8 +1,16 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
+import { fileURLToPath } from 'node:url';
 
 export default defineConfig({
-  base: './', // Penting untuk GitHub Pages
+  base: './',
   build: {
-    outDir: 'dist'
-  }
-})
+    outDir: 'dist',
+    rollupOptions: {
+      input: {
+        main: fileURLToPath(new URL('./index.html', import.meta.url)),
+        studio: fileURLToPath(new URL('./studio/index.html', import.meta.url)),
+      },
+    },
+  },
+});
+
