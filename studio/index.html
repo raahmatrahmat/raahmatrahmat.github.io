@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="theme-color" content="#101627" />
+    <title>Bubble Crush Studio</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./config.js"></script>
+    <script type="module" src="./app.js"></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <a class="brand" href="../" aria-label="Kembali ke halaman utama">
+          <span class="brand-mark" aria-hidden="true">B</span>
+          <span>Bubble Crush <strong>Studio</strong></span>
+        </a>
+        <div class="topbar-actions">
+          <span class="stage-pill"><span class="status-dot"></span> STAGING</span>
+          <a class="back-link" href="../">Halaman utama</a>
+        </div>
+      </header>
+
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Reward ledger · Gemini · MCP</p>
+          <h1>Reward yang bisa diaudit.</h1>
+          <p class="hero-copy">
+            Callback AdMob yang sah menambah poin game non-tunai. Pendapatan penerbit dan transfer wallet
+            dicatat terpisah.
+          </p>
+        </div>
+        <aside class="policy-card">
+          <span class="policy-icon" aria-hidden="true">✓</span>
+          <div>
+            <strong>Payout dari iklan dinonaktifkan</strong>
+            <p>Poin game tidak dapat ditukar menjadi uang, dipindahtangankan, atau dikirim ke e-wallet.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section id="login-panel" class="panel login-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Akses pemilik akun</p>
+            <h2>Masuk ke ledger</h2>
+          </div>
+          <span class="small-lock" aria-hidden="true">●</span>
+        </div>
+        <p class="muted">Gunakan akun yang dibuat atau diundang di Supabase Auth. Pendaftaran publik tidak disediakan.</p>
+        <form id="login-form" class="login-form">
+          <label>
+            Email
+            <input id="email" name="email" type="email" autocomplete="username" required />
+          </label>
+          <label>
+            Kata sandi
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </label>
+          <button class="button button-primary" type="submit">Masuk</button>
+        </form>
+        <p id="login-message" class="inline-message" role="status" aria-live="polite"></p>
+      </section>
+
+      <section id="dashboard-panel" class="hidden">
+        <div class="welcome-row">
+          <div>
+            <p class="eyebrow">Ledger pengguna</p>
+            <h2>Ringkasan akun</h2>
+            <p id="account-label" class="muted"></p>
+          </div>
+          <button id="logout-button" class="button button-quiet" type="button">Keluar</button>
+        </div>
+
+        <div class="summary-grid">
+          <article class="summary-card">
+            <span class="summary-label">Poin game tersedia</span>
+            <strong id="points-balance">—</strong>
+            <small>Poin non-tunai dari ledger terverifikasi</small>
+          </article>
+          <article class="summary-card">
+            <span class="summary-label">Aktivitas tercatat</span>
+            <strong id="event-count">—</strong>
+            <small>Callback SSV yang telah dikreditkan</small>
+          </article>
+          <article class="summary-card summary-card-muted">
+            <span class="summary-label">Pendapatan AdMob</span>
+            <strong>Terpisah</strong>
+            <small>Periksa transaksi final di akun penerbit Google</small>
+          </article>
+        </div>
+
+        <div class="content-grid">
+          <section class="panel ledger-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Bukti aktivitas</p>
+                <h2>Riwayat poin</h2>
+              </div>
+              <button id="refresh-button" class="button button-quiet" type="button">Muat ulang</button>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Waktu</th><th>Unit iklan</th><th>Item</th><th>Poin</th><th>ID transaksi</th></tr>
+                </thead>
+                <tbody id="ledger-rows">
+                  <tr><td colspan="5" class="empty-cell">Belum ada aktivitas.</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <p id="ledger-message" class="inline-message" role="status" aria-live="polite"></p>
+          </section>
+
+          <section class="panel assistant-panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Gemini · read-only</p>
+                <h2>Tanya tentang status</h2>
+              </div>
+              <span class="read-only-pill">TANPA AKSI UANG</span>
+            </div>
+            <p class="muted">Asisten hanya menerima saldo poin akun ini. Ia tidak dapat mengubah ledger, mengirim uang, atau menjalankan iklan.</p>
+            <form id="assistant-form" class="assistant-form">
+              <label class="visually-hidden" for="assistant-message">Pertanyaan untuk Gemini</label>
+              <textarea id="assistant-message" maxlength="1600" rows="3" placeholder="Contoh: apa arti status callback SSV?"></textarea>
+              <button class="button button-primary" type="submit">Tanya Gemini</button>
+            </form>
+            <div id="assistant-message-output" class="assistant-output" aria-live="polite">
+              <span class="muted">Kunci Gemini belum dipasang di secret Supabase staging.</span>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel connections-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Katalog integrasi</p>
+              <h2>Koneksi yang tersedia</h2>
+            </div>
+            <a class="text-link" href="https://registry.modelcontextprotocol.io/" target="_blank" rel="noreferrer">MCP Registry ↗</a>
+          </div>
+          <div class="connection-grid">
+            <article class="connection-card connected">
+              <span class="connection-icon">S</span>
+              <div><strong>Supabase</strong><p>Ledger, autentikasi, dan SSV</p></div>
+              <span class="connection-status">STAGING</span>
+            </article>
+            <article class="connection-card">
+              <span class="connection-icon">G</span>
+              <div><strong>GitHub</strong><p>Source dan CI; OAuth Gemini belum disambungkan</p></div>
+              <span class="connection-status pending">BELUM TERHUBUNG</span>
+            </article>
+            <article class="connection-card">
+              <span class="connection-icon">M</span>
+              <div><strong>Gmail</strong><p>Read-only setelah OAuth dikonfigurasi</p></div>
+              <span class="connection-status pending">BELUM TERHUBUNG</span>
+            </article>
+            <article class="connection-card">
+              <span class="connection-icon">O</span>
+              <div><strong>Outlook</strong><p>Read-only setelah OAuth dikonfigurasi</p></div>
+              <span class="connection-status pending">BELUM TERHUBUNG</span>
+            </article>
+            <article class="connection-card">
+              <span class="connection-icon">B</span>
+              <div><strong>Binance</strong><p>Data pasar publik saja; tidak terkait reward</p></div>
+              <span class="connection-status pending">BELUM TERHUBUNG</span>
+            </article>
+            <article class="connection-card">
+              <span class="connection-icon">C</span>
+              <div><strong>Canva</strong><p>Aset panduan setelah OAuth dikonfigurasi</p></div>
+              <span class="connection-status pending">BELUM TERHUBUNG</span>
+            </article>
+          </div>
+          <p class="notice">
+            Registry hanya membantu menemukan server MCP. Server dan tool harus ditinjau serta diizinkan satu per satu.
+            Koneksi ChatGPT tidak otomatis tersedia di aplikasi ini.
+          </p>
+        </section>
+      </section>
+
+      <section class="panel setup-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Endpoint staging</p>
+            <h2>AdMob SSV</h2>
+          </div>
+          <span class="connection-status pending">BELUM DIKONFIGURASI</span>
+        </div>
+        <p class="muted">Pasang URL berikut di pengaturan SSV hanya setelah secret reward dicocokkan dengan reward poin non-tunai pada unit iklan.</p>
+        <code id="ssv-url"></code>
+        <p class="notice">Reward hanya dikreditkan jika signature, unit, jumlah, item, waktu, dan user_id valid. Unit tanpa identitas pengguna tidak akan mendapat kredit.</p>
+      </section>
+
+      <footer class="footer">
+        <span>Bubble Crush Studio · Staging</span>
+        <span>Reward iklan = poin game non-tunai</span>
+      </footer>
+    </main>
+  </body>
+</html>
+
