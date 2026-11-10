@@ -5,6 +5,8 @@ import {
   base64ToBytes,
   bytesToBase64Url,
   ecdsaDerToP1363,
+  IN_GAME_REWARD_ITEMS,
+  isAllowedGameRewardItem,
   parseSignedQuery,
   validateRewardEvent,
   verifyCallbackSignature,
@@ -63,9 +65,7 @@ test('parses Google callbacks with optional user_id but never credits them witho
   delete payload.user_id;
   const parsed = parseSignedQuery(new URLSearchParams(payload).toString() + '&signature=abc&key_id=2');
   const validation = validateRewardEvent(parsed.params, {
-    allowedAdUnits: [payload.ad_unit],
-    rewardItem: payload.reward_item,
-    rewardAmount: 1,
+    rewardsByAdUnit: { [payload.ad_unit]: { item: payload.reward_item, amount: 1 } },
   });
   assert.equal(validation.reason, 'missing_or_invalid_user_id');
 });
@@ -108,19 +108,52 @@ test('accepts only fresh, mapped, configured, non-cash game rewards', () => {
   const payload = callbackPayload();
   const params = new URLSearchParams(payload);
   const config = {
-    allowedAdUnits: ['ca-app-pub-test/1234567890'],
-    rewardItem: 'game_points',
-    rewardAmount: 1,
+    rewardsByAdUnit: {
+      'ca-app-pub-test/1234567890': { item: 'game_points', amount: 1 },
+    },
     maxEventAgeMs: 60_000,
   };
   assert.equal(validateRewardEvent(params, config).ok, true);
-  assert.equal(validateRewardEvent(params, { ...config, allowedAdUnits: [] }).reason, 'ad_unit_not_allowed');
-  assert.equal(validateRewardEvent(params, { ...config, rewardItem: 'cash' }).reason, 'reward_item_mismatch_or_cash_like');
-  assert.equal(validateRewardEvent(params, { ...config, rewardAmount: 500 }).reason, 'reward_amount_mismatch');
+  assert.equal(validateRewardEvent(params, { ...config, rewardsByAdUnit: {} }).reason, 'ad_unit_not_allowed');
+  assert.equal(validateRewardEvent(params, {
+    ...config,
+    rewardsByAdUnit: { [payload.ad_unit]: { item: 'cash', amount: 1 } },
+  }).reason, 'reward_item_mismatch_or_cash_like');
+  assert.equal(validateRewardEvent(params, {
+    ...config,
+    rewardsByAdUnit: { [payload.ad_unit]: { item: 'game_points', amount: 500 } },
+  }).reason, 'reward_amount_mismatch');
   assert.equal(validateRewardEvent(new URLSearchParams({ ...payload, user_id: 'not-a-uuid' }), config).reason, 'missing_or_invalid_user_id');
   assert.equal(
     validateRewardEvent(new URLSearchParams({ ...payload, timestamp: String(Date.now() - 120_000) }), config).reason,
     'event_too_old',
   );
+});
+
+test('allows separate virtual game balances and rejects real-world payment or telecom rewards', () => {
+  const allowed = ['points', 'game_points', 'coins', 'gems', 'diamonds', 'pearls', 'game_gold', 'lives', 'energy', 'boosters', 'skins', 'cosmetics'];
+  assert.deepEqual(IN_GAME_REWARD_ITEMS, allowed);
+  for (const item of allowed) assert.equal(isAllowedGameRewardItem(item), true, item);
+
+  const rejected = ['IDR', 'USD', 'GBP', 'cash', 'bitcoin', 'BTC', 'crypto', 'gift_card', 'airtime', 'pulsa', 'data_package', 'tokens'];
+  for (const item of rejected) assert.equal(isAllowedGameRewardItem(item), false, item);
+});
+
+test('matches each rewarded ad unit to its own configured virtual item and amount', () => {
+  const payload = callbackPayload({
+    ad_unit: 'ca-app-pub-test/gems-unit',
+    reward_amount: '5',
+    reward_item: 'gems',
+  });
+  const config = {
+    rewardsByAdUnit: {
+      'ca-app-pub-test/points-unit': { item: 'game_points', amount: 10 },
+      'ca-app-pub-test/gems-unit': { item: 'gems', amount: 5 },
+    },
+  };
+
+  assert.equal(validateRewardEvent(new URLSearchParams(payload), config).ok, true);
+  assert.equal(validateRewardEvent(new URLSearchParams({ ...payload, reward_amount: '10' }), config).reason, 'reward_amount_mismatch');
+  assert.equal(validateRewardEvent(new URLSearchParams({ ...payload, reward_item: 'game_points' }), config).reason, 'reward_item_mismatch_or_cash_like');
 });
 
