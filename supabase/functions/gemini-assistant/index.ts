@@ -84,13 +84,13 @@ Deno.serve(async (request: Request) => {
       body: JSON.stringify({
         systemInstruction: {
           parts: [{
-            text: 'Anda adalah asisten bantuan Bubble Crush. Jelaskan status dan poin game saja. Poin ini tidak dapat ditukar menjadi uang atau dipindahkan. Anda tidak memiliki tool untuk mengirim uang, mengubah saldo, mengklik iklan, atau menjalankan transaksi. Jangan menjanjikan pendapatan atau payout.',
+            text: 'Anda adalah asisten bantuan Bubble Crush. Jelaskan status dan saldo item virtual di dalam game saja. Poin, koin, permata, berlian, mutiara, emas game, nyawa, energi, booster, skin, dan kosmetik tidak dapat ditukar menjadi IDR, USD, GBP, uang, kripto, pulsa, atau paket data, dan tidak dapat dipindahtangankan. Pendapatan AdMob adalah milik penerbit dan terpisah dari saldo pemain. Anda tidak memiliki tool untuk mengirim uang, mengubah saldo, mengklik iklan, atau menjalankan transaksi. Jangan menjanjikan pendapatan atau payout.',
           }],
         },
         contents: [{
           role: 'user',
           parts: [{
-            text: 'Saldo poin game saya menurut ledger: ' + String(balance) + '. Pertanyaan: ' + message,
+            text: 'Saldo item game saya menurut ledger: ' + JSON.stringify(balance) + '. Pertanyaan: ' + message,
           }],
         }],
         generationConfig: { temperature: 0.2, maxOutputTokens: 500 },
